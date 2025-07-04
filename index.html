@@ -4,58 +4,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de senha</title>
+    <title>Gerador de Senha</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <section class="conteudo">
         <div class="conteudo-titulo">
-            <img src="cadeado-fechado.png" alt="cadeado fechado"> 
-            <h2 class="titulo-principal">Gerador de senhas</h2>
+            <img src="cadeado-fechado.png" alt="Cadeado fechado">
+            <h2 class="titulo-principal">Gerador de Senhas</h2>
             <h3 class="titulo-secundario">Gere instantaneamente uma senha aleatória e segura</h3>
         </div>
+
         <div class="conteudo-senha">
-            <label for="senha">Senha</label>
-            <input name="senha" type="text" id="campo-senha">
+            <label for="campo-senha">Senha</label>
+            <input type="text" id="campo-senha" name="senha" readonly>
         </div>
+
         <div class="parametro">
             <h3 class="parametro-titulo">Personalize sua senha</h3>
+
             <div class="parametro-coluna__senha">
+                <!-- Número de caracteres -->
                 <div class="parametro-senha">
-                    <h4 class="parametro-senha__titulo">Número de caracteres</h4>
+                    <h4 class="parametro-senha__titulo">Número de Caracteres</h4>
                     <div class="parametro-senha-botoes">
-                        <button class="parametro-senha__botao">-</button>
-                        <p class="parametro-senha__texto">12</p>
-                        <button class="parametro-senha__botao">+</button>
+                        <button class="parametro-senha__botao" id="menos-caracteres">-</button>
+                        <p class="parametro-senha__texto" id="qtd-caracteres">12</p>
+                        <button class="parametro-senha__botao" id="mais-caracteres">+</button>
                     </div>
                 </div>
+
+                <!-- Características da senha -->
                 <div class="parametro-senha">
-                    <h4 class="parametro-senha__titulo">Características da senha</h4>
+                    <h4 class="parametro-senha__titulo">Características da Senha</h4>
                     <div class="parametro-senha-checkbox">
-                        <input name="maiusculo" type="checkbox" class="checkbox" checked>
-                        <label for="maiusculo">Letras maiúsculas</label>
+                        <input type="checkbox" id="maiusculo" name="maiusculo" class="checkbox" checked>
+                        <label for="maiusculo">Letras Maiúsculas</label>
                     </div>
                     <div class="parametro-senha-checkbox">
-                        <input name="minusculo" type="checkbox" class="checkbox">
-                        <label for="minusculo">Letras minúsculas</label>
+                        <input type="checkbox" id="minusculo" name="minusculo" class="checkbox">
+                        <label for="minusculo">Letras Minúsculas</label>
                     </div>
                     <div class="parametro-senha-checkbox">
-                        <input name="numero" type="checkbox" class="checkbox">
+                        <input type="checkbox" id="numero" name="numero" class="checkbox">
                         <label for="numero">Números</label>
                     </div>
                     <div class="parametro-senha-checkbox">
-                        <input name="simbolo" type="checkbox" class="checkbox">
+                        <input type="checkbox" id="simbolo" name="simbolo" class="checkbox">
                         <label for="simbolo">Símbolos</label>
                     </div>
+                </div>
 
-                </div>
                 <div class="parametro-senha">
-                    <h4 class="parametro-senha__titulo">Força da senha</h4>
-                </div>
+                    <h4 class="parametro-senha__titulo">Força da Senha</h4>
+                    <p id="forca-senha" style="font-size: 1.25rem; color: #FF6347;">Muito fraca</p> <!-- Exibe a força da senha aqui -->
+                </div>                            
             </div>
         </div>
     </section>
+    <script>
+        // Função para gerar senha aleatória
+        function gerarSenha() {
+            const qtdCaracteres = parseInt(document.getElementById('qtd-caracteres').textContent);
+            const maiusculo = document.getElementById('maiusculo').checked;
+            const minusculo = document.getElementById('minusculo').checked;
+            const numero = document.getElementById('numero').checked;
+            const simbolo = document.getElementById('simbolo').checked;
+    
+            let caracteres = '';
+            if (maiusculo) caracteres += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (minusculo) caracteres += 'abcdefghijklmnopqrstuvwxyz';
+            if (numero) caracteres += '0123456789';
+            if (simbolo) caracteres += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    
+            if (caracteres === '') {
+                alert('Selecione pelo menos uma característica para a senha!');
+                return;
+            }
+    
+            let senha = '';
+            for (let i = 0; i < qtdCaracteres; i++) {
+                const randomIndex = Math.floor(Math.random() * caracteres.length);
+                senha += caracteres[randomIndex];
+            }
+    
+            // Exibir a senha gerada
+            document.getElementById('campo-senha').value = senha;
+    
+            // Avaliar a força da senha e mudar a cor
+            const forca = avaliarForcaSenha(senha);
+            document.getElementById('forca-senha').textContent = forca.texto;
+            document.getElementById('forca-senha').style.color = forca.cor;
+        }
+    
+        // Função para avaliar a força da senha
+        function avaliarForcaSenha(senha) {
+            let forca = {
+                texto: "Muito fraca",
+                cor: "#FF6347" // Cor inicial (Vermelho)
+            };
+            let pontos = 0;
+    
+            // Comprimento mínimo de 8 caracteres
+            if (senha.length >= 8) {
+                pontos += 1;
+            }
+    
+            // Maiúsculas, minúsculas, números e símbolos
+            if (/[A-Z]/.test(senha)) pontos += 1;  // Maiúsculas
+            if (/[a-z]/.test(senha)) pontos += 1;  // Minúsculas
+            if (/\d/.test(senha)) pontos += 1;     // Números
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(senha)) pontos += 1;  // Símbolos
+    
+            // Avaliar força com base nos pontos
+            if (pontos === 1) {
+                forca = { texto: "Muito fraca", cor: "#FF6347" }; // Vermelho
+            } else if (pontos === 2) {
+                forca = { texto: "Fraca", cor: "#FF9900" }; // Laranja
+            } else if (pontos === 3) {
+                forca = { texto: "Média", cor: "#FFEB3B" }; // Amarelo
+            } else if (pontos >= 4) {
+                forca = { texto: "Forte", cor: "#4CAF50" }; // Verde
+            }
+    
+            return forca;
+        }
+    
+        // Aumentar ou diminuir o número de caracteres
+        document.getElementById('mais-caracteres').addEventListener('click', function() {
+            let qtdCaracteres = parseInt(document.getElementById('qtd-caracteres').textContent);
+            if (qtdCaracteres < 20) { // Limitar para um máximo de 20 caracteres
+                qtdCaracteres++;
+                document.getElementById('qtd-caracteres').textContent = qtdCaracteres;
+                gerarSenha();  // Atualiza a senha ao mudar a quantidade de caracteres
+            }
+        });
+    
+        document.getElementById('menos-caracteres').addEventListener('click', function() {
+            let qtdCaracteres = parseInt(document.getElementById('qtd-caracteres').textContent);
+            if (qtdCaracteres > 4) { // Limitar para um mínimo de 4 caracteres
+                qtdCaracteres--;
+                document.getElementById('qtd-caracteres').textContent = qtdCaracteres;
+                gerarSenha();  // Atualiza a senha ao mudar a quantidade de caracteres
+            }
+        });
+    
+        document.querySelectorAll('.checkbox').forEach(function(checkbox) {
+            checkbox.addEventListener('change', gerarSenha);  // Atualiza a senha quando qualquer checkbox mudar
+        });
+    
+        window.onload = gerarSenha;  // Gera a senha automaticamente ao carregar a página
+    </script>       
 </body>
 
 </html>
